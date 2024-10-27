@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Prediction Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .container {
+            width: 50%;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+            background-color: #e7f9e7;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Insurance Prediction Platform</h1>
+</header>
+
+<div class="container">
+    <h2>Enter Your Details</h2>
+    <form id="predictionForm">
+        <div class="form-group">
+            <label for="age">Age:</label>
+            <input type="number" id="age" required>
+        </div>
+        <div class="form-group">
+            <label for="bmi">BMI:</label>
+            <input type="number" step="0.1" id="bmi" required>
+        </div>
+        <div class="form-group">
+            <label for="children">Number of Children:</label>
+            <input type="number" id="children" required>
+        </div>
+        <div class="form-group">
+            <label>Sex:</label>
+            <label><input type="radio" name="sex" value="female" required> Female</label>
+            <label><input type="radio" name="sex" value="male"> Male</label>
+        </div>
+        <div class="form-group">
+            <label>Smoker:</label>
+            <label><input type="radio" name="smoker" value="no" required> No</label>
+            <label><input type="radio" name="smoker" value="yes"> Yes</label>
+        </div>
+        <div class="form-group">
+            <label>Region:</label>
+            <select id="region" required>
+                <option value="northeast">Northeast</option>
+                <option value="northwest">Northwest</option>
+                <option value="southeast">Southeast</option>
+                <option value="southwest">Southwest</option>
+            </select>
+        </div>
+        <button type="submit" class="btn">Predict</button>
+    </form>
+
+    <div id="result" style="display:none;">
+        <h3>Prediction Result:</h3>
+        <p id="predictionOutput"></p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('predictionForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Collect input values
+        const age = document.getElementById('age').value;
+        const bmi = document.getElementById('bmi').value;
+        const children = document.getElementById('children').value;
+        const sex = document.querySelector('input[name="sex"]:checked').value;
+        const smoker = document.querySelector('input[name="smoker"]:checked').value;
+        const region = document.getElementById('region').value;
+
+        // Create the JSON payload
+        const data = {
+            age: parseInt(age),
+            bmi: parseFloat(bmi),
+            children: parseInt(children),
+            sex_female: sex === 'female' ? 1 : 0,
+            sex_male: sex === 'male' ? 1 : 0,
+            smoker_no: smoker === 'no' ? 1 : 0,
+            smoker_yes: smoker === 'yes' ? 1 : 0,
+            region_northeast: region === 'northeast' ? 1 : 0,
+            region_northwest: region === 'northwest' ? 1 : 0,
+            region_southeast: region === 'southeast' ? 1 : 0,
+            region_southwest: region === 'southwest' ? 1 : 0
+        };
+
+        // Send the POST request
+        fetch('http://127.0.0.1:5000/predict', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display prediction result
+            document.getElementById('predictionOutput').innerText = 'Your predicted insurance cost is: $' + data.prediction;
+            document.getElementById('result').style.display = 'block';
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    });
+</script>
+
+</body>
+</html>
